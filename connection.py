@@ -3,7 +3,8 @@ import traceback
 #con = pymysql.connect("localhost", "root","toor","csdl", autocommit=True)
 class Connection:
     def __init__(self, ip, user, password, db_name):
-        self.con = pymysql.connect(ip, user, password, db_name, autocommit=True, charset='utf8')
+        self.dict_conn = pymysql.connect(ip, user, password, db_name, autocommit=True, charset='utf8',
+                                         cursorclass=pymysql.cursors.DictCursor)
         self.db_name = db_name
 
 #
