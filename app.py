@@ -144,8 +144,9 @@ def delete_cay_trong():
 @app.route("/khach-hang", methods=["GET"])
 def GETkh():
     content = request.data
-    #r_dict = json.loads(content.decode('utf-8'))
+    # r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.khachhang(action=request.method, data=None))
+
 
 @app.route("/khach-hang", methods=["POST"])
 def POSTkh():
@@ -153,11 +154,13 @@ def POSTkh():
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.khachhang(action=request.method, data=r_dict))
 
+
 @app.route("/khach-hang", methods=["PUT"])
 def PUTkh():
     content = request.data
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.khachhang(action=request.method, data=r_dict))
+
 
 @app.route("/khach-hang", methods=["DELETE"])
 def DELETEkh():
@@ -169,8 +172,9 @@ def DELETEkh():
 @app.route("/kho", methods=["GET"])
 def GETkho():
     content = request.data
-    #r_dict = json.loads(content.decode('utf-8'))
+    # r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.kho(action=request.method, data=None))
+
 
 @app.route("/kho", methods=["POST"])
 def POSTkho():
@@ -178,11 +182,13 @@ def POSTkho():
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.kho(action=request.method, data=r_dict))
 
+
 @app.route("/kho", methods=["PUT"])
 def PUTkho():
     content = request.data
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.kho(action=request.method, data=r_dict))
+
 
 @app.route("/kho", methods=["DELETE"])
 def DELETEkho():
@@ -191,12 +197,12 @@ def DELETEkho():
     return jsonify(con.kho(action=request.method, data=r_dict))
 
 
-
 @app.route("/khu_vuc", methods=["GET"])
 def GETkhu_vuc():
     content = request.data
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.khu_vuc(action=request.method, data=r_dict))
+
 
 @app.route("/khu_vuc", methods=["POST"])
 def POSTkhu_vuc():
@@ -204,11 +210,13 @@ def POSTkhu_vuc():
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.khu_vuc(action=request.method, data=r_dict))
 
+
 @app.route("/khu_vuc", methods=["PUT"])
 def PUTkhu_vuc():
     content = request.data
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.khu_vuc(action=request.method, data=r_dict))
+
 
 @app.route("/khu_vuc", methods=["DELETE"])
 def DELETEkhu_vuc():
@@ -216,12 +224,14 @@ def DELETEkhu_vuc():
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.khu_vuc(action=request.method, data=r_dict))
 
+
 ###
 @app.route("/hang-hoa", methods=["GET"])
 def GEThang_hoa():
     content = request.data
-    #r_dict = json.loads(content.decode('utf-8'))
+    # r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.hang_hoa(action=request.method, data=None))
+
 
 @app.route("/hang-hoa", methods=["POST"])
 def POSThang_hoa():
@@ -229,18 +239,19 @@ def POSThang_hoa():
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.hang_hoa(action=request.method, data=r_dict))
 
+
 @app.route("/hang-hoa", methods=["PUT"])
 def PUThang_hoa():
     content = request.data
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.hang_hoa(action=request.method, data=r_dict))
 
+
 @app.route("/hang-hoa", methods=["DELETE"])
 def DELETEkhang_hoa():
     content = request.data
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.hang_hoa(action=request.method, data=r_dict))
-
 
 
 @app.route("/hang-hoa", methods=["DELETE"])
@@ -256,15 +267,20 @@ def hhtk():
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.hang_hoa_kho(action=request.method, data=r_dict))
 
-@app.route("/ban-hang", methods=["POST","PUT","DELETE","GET"])
+
+@app.route("/ban-hang", methods=["POST", "PUT", "DELETE", "GET"])
 def ban_hang0():
     content = request.data
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.ban_hang(action=request.method, data=r_dict))
 
+
 @app.route("/chi-tiet-ban-hang", methods=["GET"])
 def ban1_hang0():
     content = request.data
-    #r_dict = json.loads(content.decode('utf-8'))
+    # r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.chi_tiet_ban_hang(action=request.method, data=None))
-app.run(host="0.0.0.0", port=8080)
+
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=8686)
