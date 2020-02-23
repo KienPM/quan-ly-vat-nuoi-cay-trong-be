@@ -5,6 +5,7 @@ class Connection:
     def __init__(self, ip, user, password, db_name):
         self.dict_conn = pymysql.connect(ip, user, password, db_name, autocommit=True, charset='utf8',
                                          cursorclass=pymysql.cursors.DictCursor)
+        self.con = pymysql.connect(ip, user, password, db_name, autocommit=True, charset='utf8')
         self.db_name = db_name
 
 #
@@ -92,7 +93,7 @@ class Connection:
     #_-----------------------
     def get_ban_hang(self, data=None):
         response = list()
-        sql = "Select id_ban_hang,id_nhan_vien,id_khach_hang,ngay_ban from {}.nhan_vien".format(self.db_name)
+        sql = "Select id_ban_hang,id_nhan_vien,id_khach_hang,ngay_ban from {}.ban_hang".format(self.db_name)
         result = self.excute_sql(sql)
         for item in result:
             data  = {
@@ -103,6 +104,22 @@ class Connection:
             }
             response.append(data)
         return response
+    def get_ban_hang_by_id(self, data=None):
+        response = list()
+        sql = "Select id_ban_hang,id_nhan_vien,id_khach_hang,ngay_ban from {}.ban_hang where id_ban_hang=%s".format(self.db_name)
+        result = self.excute_sql(sql, data["id_ban_hang"])
+        for item in result:
+            data  = {
+                "id_ban_hang": item[0],    
+                "id_nhan_vien": item[1],
+                "id_khach_hang":item[2],
+                "ngay_ban":item[3],
+            }
+            response.append(data)
+        return response
+#```````````
+        
+
     def add_ban_hang(self, data=None):
         sql = "insert into {}.ban_hang (id_ban_hang,id_nhan_vien,id_khach_hang,ngay_ban)  values  (%s, %s, %s,%s)".format(self.db_name)
         result = self.excute_sql(sql, [
@@ -244,6 +261,24 @@ class Connection:
             }
             response.append(data)
         return response
+
+
+    def get_chi_tiet_ban_hang(self, data=None):
+        response = list()
+        sql = "Select id_ban_hang, id_hang_hoa, id_kho, so_luong, gia from {}.chi_tiet_ban_hang".format(self.db_name)
+        result = self.excute_sql(sql)
+        for item in result:
+            data  = {
+                "id_ban_hang": item[0],
+                "id_hang_hoa": item[1],
+                "id_kho": item[2],
+                "so_luong": item[3],
+                "gia": item[4]
+            }
+            response.append(data)
+        return response
+
+
     def get_hang_hoa_by_id(self, data=None):
         response = list()
         sql = "Select id_hang_hoa,ten,kieu_hang_hoa,gia,don_vi_tinh from {}.hang_hoa where id_hang_hoa =%s".format(self.db_name)
@@ -762,12 +797,13 @@ class Connection:
         response = None
         if action == "GET":
             response = []
-            datas = self.get_hang_hoa(data)
+            datas = self.get_ban_hang(data)
             for item in datas:
                 data = {
-                    "id_ban_hang": item[id_ban_hang],
-                    "nhan_vien": self.get_khach_hang_by_id(item),
-                    "khach_hang": self.get_nv_by_id(item),
+                    "id_ban_hang": item["id_ban_hang"],
+                    "ngay_ban": item["ngay_ban"],
+                    "nhan_vien": self.get_khach_hang_by_id(item)[0],
+                    "khach_hang": self.get_nv_by_id(item)[0],
                 }
                 response.append(data)
         elif action == "POST":
@@ -776,7 +812,14 @@ class Connection:
             response = data
         elif action == "PUT":
             self.edit_ban_hang(data)
-            response= self.get_hang_hoa_by_id(data)[0]
+            item= self.get_ban_hang_by_id(data)[0]
+            response = {
+                    "id_ban_hang": item["id_ban_hang"],
+                    "ngay_ban": item["ngay_ban"],
+                    "nhan_vien": self.get_khach_hang_by_id(item)[0],
+                    "khach_hang": self.get_nv_by_id(item)[0],
+                }
+            
         elif action == "DELETE":
             response = self.ban_hang(data)
         return response
@@ -789,6 +832,21 @@ class Connection:
             response = []
             for data in datas:
                 response.append(self.get_hang_hoa_by_id(data)[0])
+        return response
+
+    def chi_tiet_ban_hang(self, action, data=None):
+        response = None
+        if action == "GET":
+            datas = self.get_chi_tiet_ban_hang(data)
+            response = []
+            for data in datas:
+                item ={
+                    "hang_hoa": self.get_hang_hoa_by_id(data)[0],
+                    "kho":self.get_kho_by_id(data)[0],
+                    "so_luong":data["so_luong"],
+                    "gia":data["gia"],
+                }
+                response.append(item)
         return response
 
 ####
