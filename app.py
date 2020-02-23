@@ -256,30 +256,15 @@ def hhtk():
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.hang_hoa_kho(action=request.method, data=r_dict))
 
-@app.route("/ban-hang", methods=["POST"])
+@app.route("/ban-hang", methods=["POST","PUT","DELETE","GET"])
 def ban_hang0():
     content = request.data
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.ban_hang(action=request.method, data=r_dict))
 
-@app.route("/ban-hang", methods=["PUT"])
-def ban_hang1():
+@app.route("/chi-tiet-ban-hang", methods=["GET"])
+def ban1_hang0():
     content = request.data
-    r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.ban_hang(action=request.method, data=r_dict))
-
-@app.route("/ban-hang", methods=["DELETE"])
-def ban_hang2():
-    content = request.data
-    r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.ban_hang(action=request.method, data=r_dict))
-
-
-
-@app.route("/ban-hang", methods=["DELETE"])
-def ban_hang3():
-    content = request.data
-    r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.ban_hang(action=request.method, data=r_dict))
-
+    #r_dict = json.loads(content.decode('utf-8'))
+    return jsonify(con.chi_tiet_ban_hang(action=request.method, data=None))
 app.run(host="0.0.0.0", port=8080)
