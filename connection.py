@@ -693,6 +693,18 @@ class Connection:
                     self.excute_sql(
                         "insert into {}.nhan_vien_sdt  (sdt,id_nhan_vien) values (%s, %s)".format(self.db_name),
                         [sdt, data["id_nhan_vien"]])
+                sql = "Select id_phong_ban,ten_phong_ban,dia_chi,email from {}.phong_ban where id_phong_ban =%s".format(
+                            self.db_name)
+                pb = self.excute_sql(sql, data["id_phong_ban"])
+                for item in pb:
+                    data["phong_ban"] = {
+                        "id_phong_ban": item[0],
+                        "ten_phong_ban": item[1],
+                        "dia_chi": item[2],
+                        "email": item[3]
+                    }
+                sql = "Select sdt from {}.nhan_vien_sdt where id_nhan_vien=%s".format(self.db_name)
+                sdts = self.excute_sql(sql, data["id_nhan_vien"])
                 response = data
             elif action == "DELETE":
                 sql = "Delete from {}.nhan_vien_sdt  where id_nhan_vien=%s".format(
@@ -723,6 +735,20 @@ class Connection:
                     data["id_nhan_vien"],
                 ]
                                          )
+                sql = "Select id_phong_ban,ten_phong_ban,dia_chi,email from {}.phong_ban where id_phong_ban =%s".format(
+                            self.db_name)
+                pb = self.excute_sql(sql, data["id_phong_ban"])
+                for item in pb:
+                    data["phong_ban"] = {
+                        "id_phong_ban": item[0],
+                        "ten_phong_ban": item[1],
+                        "dia_chi": item[2],
+                        "email": item[3]
+                    }
+                sql = "Select sdt from {}.nhan_vien_sdt where id_nhan_vien=%s".format(self.db_name)
+                sdts = self.excute_sql(sql, data["id_nhan_vien"])
+                for sdt in sdts:
+                    data['sdt'].append(sdt[0])
                 response = data
             elif action == "GET":
                 response = list()
