@@ -282,5 +282,29 @@ def ban1_hang0():
     return jsonify(con.chi_tiet_ban_hang(action=request.method, data=None))
 
 
+@app.route("/thong-ke-tong-doanh-thu", methods=["GET"])
+def ban1_3hang0():
+    content = request.data
+    #r_dict = json.loads(content.decode('utf-8'))
+    return jsonify(con.thongkedoanhthu())
+
+@app.route("/thong-ke-theo-hang-hoa", methods=["GET"])
+def ban1_h13ang0():
+    content = request.data
+    #r_dict = json.loads(content.decode('utf-8'))
+    return jsonify(con.thongkedoanhthu_hanghoa())
+
+@app.route("/thong-ke-theo-nhan-vien", methods=["GET"])
+def ban151_hang0():
+    content = request.data
+    #r_dict = json.loads(content.decode('utf-8'))
+    return jsonify(con.thongkedoanhthu_nv())
+
+@app.route("/thong-ke-hang-ton", methods=["GET"])
+def ban1_h31232ang0():
+    content = request.data
+    #r_dict = json.loads(content.decode('utf-8'))
+    return jsonify(con.thongkehangton())
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8686)
