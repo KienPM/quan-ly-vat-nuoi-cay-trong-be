@@ -1,6 +1,6 @@
 import pymysql
 import traceback
-
+import copy
 
 # con = pymysql.connect("localhost", "root","toor","csdl", autocommit=True)
 class Connection:
@@ -9,8 +9,7 @@ class Connection:
                                          cursorclass=pymysql.cursors.DictCursor)
         self.con = pymysql.connect(ip, user, password, db_name, autocommit=True, charset='utf8')
         self.db_name = db_name
-
-    #
+        
     def get_sql_nv(self, action, data=None):
         try:
             response = list()
@@ -539,6 +538,18 @@ class Connection:
         for item in result:
             data = {
                 "id_kho": item[0],
+                "id_hang_hoa": item[1],"so_luong": item[2],
+            }
+            response.append(data)
+        return response
+
+    def get_ids_hang_ton(self, data=None):
+        response = list()
+        sql = "Select id_kho, id_hang_hoa, so_luong from {}.luu_kho".format(self.db_name)
+        result = self.excute_sql(sql)
+        for item in result:
+            data = {
+                "id_kho": item[0],
                 "id_hang_hoa": item[1],
                 "so_luong": item[2],
             }
@@ -1033,7 +1044,68 @@ class Connection:
             self.con.rollback()
             raise e
 
-    ### Hàng hóa
+    def thongkedoanhthu(self, data=None):
+        chi_tiet_ban_hangs = self.get_chi_tiet_ban_hang()
+        datas = self.get_ban_hang()
+        dict_doanh_thu = dict()
+        for data in datas:
+            for chi_tiet_ban_hang in chi_tiet_ban_hangs:
+                if data["id_ban_hang"] == chi_tiet_ban_hang["id_ban_hang"]:
+                    dict_doanh_thu[data['ngay_ban']] = dict_doanh_thu[data['ngay_ban']] + chi_tiet_ban_hang["gia"] if dict_doanh_thu.get(data['ngay_ban']) else  chi_tiet_ban_hang["gia"]
+        #dict_doanh_thu = sorted(datas , key=lambda k: k['ngay_ban'])
+
+        #list_thang_co_doanh_thu = [doanh_thu.month  for doanh_thu in list(dict_doanh_thu.keys())]
+        response = []
+        month = 0
+        for ngay_ban in sorted(dict_doanh_thu):
+            month +=1
+            print(ngay_ban.month)
+            while month < ngay_ban.month:
+                response.append(0)
+                month +=1
+            response.append(dict_doanh_thu.get(ngay_ban))
+        return response
+
+    def thongkedoanhthu_hanghoa(self, data=None):
+        chi_tiet_ban_hangs = self.get_chi_tiet_ban_hang()
+        datas = self.get_ban_hang()
+        dict_doanh_thu = dict()
+        for data in datas:
+            for chi_tiet_ban_hang in chi_tiet_ban_hangs:
+                if data["id_ban_hang"] == chi_tiet_ban_hang["id_ban_hang"]:
+                    hang_hoa = self.get_hang_hoa_by_id(chi_tiet_ban_hang)[0]
+                    if dict_doanh_thu.get(chi_tiet_ban_hang['id_hang_hoa']):
+                        dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']]["doanh_thu"] += chi_tiet_ban_hang["gia"]
+                    else:
+                        dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']]  = copy.deepcopy(hang_hoa)
+                        dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']].update({"doanh_thu":chi_tiet_ban_hang["gia"]})
+        return list(dict_doanh_thu.values())
+ 
+    def thongkedoanhthu_nv(self, data=None):
+        chi_tiet_ban_hangs = self.get_chi_tiet_ban_hang()
+        datas = self.get_ban_hang()
+        dict_doanh_thu = dict()
+        for data in datas:
+            for chi_tiet_ban_hang in chi_tiet_ban_hangs:
+                if data["id_ban_hang"] == chi_tiet_ban_hang["id_ban_hang"]:
+                    nhan_vien = self.get_nv_by_id(data)[0]
+                    if dict_doanh_thu.get(nhan_vien['id_nhan_vien']):
+                        dict_doanh_thu[nhan_vien['id_nhan_vien']]["doanh_thu"] += chi_tiet_ban_hang["gia"]
+                    else:
+                        dict_doanh_thu[nhan_vien['id_nhan_vien']]  = copy.deepcopy(nhan_vien)
+                        dict_doanh_thu[nhan_vien['id_nhan_vien']].update({"doanh_thu":chi_tiet_ban_hang["gia"]})
+        return list(dict_doanh_thu.values())
+
+    def thongkehangton(self,data=None):
+        hang_tons = self.get_ids_hang_ton()
+        dict_hang_tons= dict()
+        for hang_ton in hang_tons:
+            if dict_hang_tons.get(hang_ton["id_hang_hoa"]):
+                dict_hang_tons[hang_ton["id_hang_hoa"]].update({"so_luong":dict_hang_tons[hang_ton["id_hang_hoa"]]["so_luong"]+hang_ton['so_luong']})
+            else: 
+                dict_hang_tons[hang_ton["id_hang_hoa"]] = copy.deepcopy(hang_ton)
+                dict_hang_tons[hang_ton["id_hang_hoa"]].update(self.get_hang_hoa_by_id(hang_ton)[0])
+        return list(dict_hang_tons.values())
 
     def excute_sql(self, sql, value=None):
         cur = self.con.cursor()
