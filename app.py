@@ -55,6 +55,20 @@ def nvPOST():
     return jsonify(con.nhanvien(action=request.method, data=r_dict))
 
 
+@app.route("/nhan-vien", methods=["PUT"])
+def nvPUT():
+    content = request.data
+    r_dict = json.loads(content.decode('utf-8'))
+    return jsonify(con.nhanvien(action=request.method, data=r_dict))
+
+
+@app.route("/nhan-vien", methods=["DELETE"])
+def nvDELETE():
+    content = request.data
+    r_dict = json.loads(content.decode('utf-8'))
+    return jsonify(con.nhanvien(action=request.method, data=r_dict))
+
+
 # vat_nuoi
 @app.route("/hang-hoa-vat-nuoi", methods=["GET"])
 def get_all_vat_nuoi():
@@ -285,26 +299,30 @@ def ban1_hang0():
 @app.route("/thong-ke-tong-doanh-thu", methods=["GET"])
 def ban1_3hang0():
     content = request.data
-    #r_dict = json.loads(content.decode('utf-8'))
+    # r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.thongkedoanhthu())
+
 
 @app.route("/thong-ke-theo-hang-hoa", methods=["GET"])
 def ban1_h13ang0():
     content = request.data
-    #r_dict = json.loads(content.decode('utf-8'))
+    # r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.thongkedoanhthu_hanghoa())
+
 
 @app.route("/thong-ke-theo-nhan-vien", methods=["GET"])
 def ban151_hang0():
     content = request.data
-    #r_dict = json.loads(content.decode('utf-8'))
+    # r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.thongkedoanhthu_nv())
+
 
 @app.route("/thong-ke-hang-ton", methods=["GET"])
 def ban1_h31232ang0():
     content = request.data
-    #r_dict = json.loads(content.decode('utf-8'))
+    # r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.thongkehangton())
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8686)
