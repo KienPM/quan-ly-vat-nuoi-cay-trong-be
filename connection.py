@@ -2,6 +2,7 @@ import pymysql
 import traceback
 import copy
 
+
 # con = pymysql.connect("localhost", "root","toor","csdl", autocommit=True)
 class Connection:
     def __init__(self, ip, user, password, db_name):
@@ -9,7 +10,7 @@ class Connection:
                                          cursorclass=pymysql.cursors.DictCursor)
         self.con = pymysql.connect(ip, user, password, db_name, autocommit=True, charset='utf8')
         self.db_name = db_name
-        
+
     def get_sql_nv(self, action, data=None):
         try:
             response = list()
@@ -386,7 +387,7 @@ class Connection:
 
     # --------------------------------------------------------#--------------------------------------------------------#--------------------------------------------------------#--------------------------------------------------------
     def get_max_id_kho(self):
-        return self.excute_sql("select max(id_kho) from {}.id_kho".format(self.db_name))[0][0]
+        return self.excute_sql("select max(id_kho) from {}.kho".format(self.db_name))[0][0]
 
     def get_kho(self, data=None):
         response = list()
@@ -442,59 +443,34 @@ class Connection:
                                  )
 
     # --------------------------------------------------------#--------------------------------------------------------#--------------------------------------------------------
-    def add_khu_vuc(self, data=None):
-        sql = "insert into {}.khu_vuc (id_kho,ten_khu_vuc,mo_ta)  values  (%s, %s, %s)".format(self.db_name)
-        result = self.excute_sql(sql, [
-            data.get("id_kho"),
-            data["ten_khu_vuc"],
-            data["mo_ta"]
-        ]
-                                 )
+    def add_khu_vuc(self, id_kho, data):
+        sql = "INSERT INTO khu_vuc(id_kho, ten_khu_vuc, mo_ta) VALUES(%s,%s,%s)"
+        cursor = self.execute_get_cursor(sql, (
+            id_kho, data['ten_khu_vuc'], data['mo_ta']
+        ))
         return data
 
-    def edit_khu_vuc(self, data=None):
-        sql = "update {}.khu_vuc  set mo_ta=%s where id_kho=%s and ten_khu_vuc=%s".format(self.db_name)
-        result = self.excute_sql(sql, [
-            data["mo_ta"],
-            data["id_kho"],
-            data["ten_khu_vuc"]
-        ]
-                                 )
+    def list_khu_vuc(self, id_kho):
+        sql = "SELECT * FROM kho WHERE id_kho=%s"
+        cursor = self.execute_get_cursor(sql, (id_kho,))
+        chi_tiet_kho = cursor.fetchone()
+        sql = "SELECT * FROM khu_vuc WHERE id_kho=%s"
+        cursor = self.execute_get_cursor(sql, (id_kho,))
+        chi_tiet_kho["khu_vuc"] = cursor.fetchall()
+        return chi_tiet_kho
+
+    def update_khu_vuc(self, id_kho, data):
+        sql = "UPDATE khu_vuc SET mo_ta=%s WHERE id_kho=%s AND ten_khu_vuc=%s"
+        self.execute_get_cursor(sql, (
+            data['mo_ta'], id_kho, data['ten_khu_vuc']
+        ))
         return data
 
-    def delete_khu_vuc(self, data=None):
-        sql = "delete from  {}.khu_vuc where id_kho=%s and ten_khu_vuc=%s".format(self.db_name)
-        result = self.excute_sql(sql, [
-            data["id_kho"],
-            data["ten_khu_vuc"]
-        ]
-                                 )
-
-    def get_khu_vuc_by_id(self, data=None):
-        response = list()
-        sql = "Select id_kho,ten_khu_vuc,mo_ta from {}.khu_vuc where id_kho = %s ".format(self.db_name)
-        result = self.excute_sql(sql, data["id_kho"])
-        for item in result:
-            data = {
-                "id_kho": item[0],
-                "ten_khu_vuc": item[1],
-                "mo_ta": item[2],
-            }
-            response.append(data)
-        return response
-
-    def get_khu_vuc_by_id(self, data=None):
-        response = list()
-        sql = "Select id_kho,ten_khu_vuc,mo_ta from {}.khu_vuc where id_kho =%s".format(self.db_name)
-        result = self.excute_sql(sql, [data['id_kho']])
-        for item in result:
-            data = {
-                "id_kho": item[0],
-                "ten_khu_vuc": item[1],
-                "mo_ta": item[2],
-            }
-            response.append(data)
-        return response
+    def delete_khu_vuc(self, id_kho, data):
+        sql = "DELETE FROM khu_vuc WHERE id_kho=%s AND ten_khu_vuc=%s"
+        self.execute_get_cursor(sql, (
+            id_kho, data['ten_khu_vuc']
+        ))
 
     # --------------------------------------------------------#--------------------------------------------------------#--------------------------------------------------------
     # id_hang_hoa, ten, kieu_hang_hoa, gia, don_vi_tinh
@@ -538,7 +514,7 @@ class Connection:
         for item in result:
             data = {
                 "id_kho": item[0],
-                "id_hang_hoa": item[1],"so_luong": item[2],
+                "id_hang_hoa": item[1], "so_luong": item[2],
             }
             response.append(data)
         return response
@@ -705,7 +681,7 @@ class Connection:
                         "insert into {}.nhan_vien_sdt  (sdt,id_nhan_vien) values (%s, %s)".format(self.db_name),
                         [sdt, data["id_nhan_vien"]])
                 sql = "Select id_phong_ban,ten_phong_ban,dia_chi,email from {}.phong_ban where id_phong_ban =%s".format(
-                            self.db_name)
+                    self.db_name)
                 pb = self.excute_sql(sql, data["id_phong_ban"])
                 for item in pb:
                     data["phong_ban"] = {
@@ -747,7 +723,7 @@ class Connection:
                 ]
                                          )
                 sql = "Select id_phong_ban,ten_phong_ban,dia_chi,email from {}.phong_ban where id_phong_ban =%s".format(
-                            self.db_name)
+                    self.db_name)
                 pb = self.excute_sql(sql, data["id_phong_ban"])
                 for item in pb:
                     data["phong_ban"] = {
@@ -831,22 +807,7 @@ class Connection:
             self.edit_kho(data)
             response = self.get_kho_by_id(data)[0]
         elif action == "DELETE":
-            response = self.delete_kho(data)
-        return response
-
-    def khu_vuc(self, action, data=None):
-        response = None
-        if action == "GET":
-            response = self.get_khu_vuc_by_id(data)
-        elif action == "POST":
-            self.add_khu_vuc(data)
-            # data["id_kho"]= self.get_max_id_kho() if not data.get("id_kho") else data["id_kho"]
-            response = data
-        elif action == "PUT":
-            self.edit_khu_vuc(data)
-            response = self.get_khu_vuc_by_id(data)[0]
-        elif action == "DELETE":
-            response = self.delete_khu_vuc(data)
+            self.delete_kho(data)
         return response
 
     def hang_hoa(self, action, data=None):
@@ -1051,18 +1012,19 @@ class Connection:
         for data in datas:
             for chi_tiet_ban_hang in chi_tiet_ban_hangs:
                 if data["id_ban_hang"] == chi_tiet_ban_hang["id_ban_hang"]:
-                    dict_doanh_thu[data['ngay_ban']] = dict_doanh_thu[data['ngay_ban']] + chi_tiet_ban_hang["gia"] if dict_doanh_thu.get(data['ngay_ban']) else  chi_tiet_ban_hang["gia"]
-        #dict_doanh_thu = sorted(datas , key=lambda k: k['ngay_ban'])
+                    dict_doanh_thu[data['ngay_ban']] = dict_doanh_thu[data['ngay_ban']] + chi_tiet_ban_hang[
+                        "gia"] if dict_doanh_thu.get(data['ngay_ban']) else chi_tiet_ban_hang["gia"]
+        # dict_doanh_thu = sorted(datas , key=lambda k: k['ngay_ban'])
 
-        #list_thang_co_doanh_thu = [doanh_thu.month  for doanh_thu in list(dict_doanh_thu.keys())]
+        # list_thang_co_doanh_thu = [doanh_thu.month  for doanh_thu in list(dict_doanh_thu.keys())]
         response = []
         month = 0
         for ngay_ban in sorted(dict_doanh_thu):
-            month +=1
+            month += 1
             print(ngay_ban.month)
             while month < ngay_ban.month:
                 response.append(0)
-                month +=1
+                month += 1
             response.append(dict_doanh_thu.get(ngay_ban))
         return response
 
@@ -1077,10 +1039,10 @@ class Connection:
                     if dict_doanh_thu.get(chi_tiet_ban_hang['id_hang_hoa']):
                         dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']]["doanh_thu"] += chi_tiet_ban_hang["gia"]
                     else:
-                        dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']]  = copy.deepcopy(hang_hoa)
-                        dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']].update({"doanh_thu":chi_tiet_ban_hang["gia"]})
+                        dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']] = copy.deepcopy(hang_hoa)
+                        dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']].update({"doanh_thu": chi_tiet_ban_hang["gia"]})
         return list(dict_doanh_thu.values())
- 
+
     def thongkedoanhthu_nv(self, data=None):
         chi_tiet_ban_hangs = self.get_chi_tiet_ban_hang()
         datas = self.get_ban_hang()
@@ -1092,17 +1054,18 @@ class Connection:
                     if dict_doanh_thu.get(nhan_vien['id_nhan_vien']):
                         dict_doanh_thu[nhan_vien['id_nhan_vien']]["doanh_thu"] += chi_tiet_ban_hang["gia"]
                     else:
-                        dict_doanh_thu[nhan_vien['id_nhan_vien']]  = copy.deepcopy(nhan_vien)
-                        dict_doanh_thu[nhan_vien['id_nhan_vien']].update({"doanh_thu":chi_tiet_ban_hang["gia"]})
+                        dict_doanh_thu[nhan_vien['id_nhan_vien']] = copy.deepcopy(nhan_vien)
+                        dict_doanh_thu[nhan_vien['id_nhan_vien']].update({"doanh_thu": chi_tiet_ban_hang["gia"]})
         return list(dict_doanh_thu.values())
 
-    def thongkehangton(self,data=None):
+    def thongkehangton(self, data=None):
         hang_tons = self.get_ids_hang_ton()
-        dict_hang_tons= dict()
+        dict_hang_tons = dict()
         for hang_ton in hang_tons:
             if dict_hang_tons.get(hang_ton["id_hang_hoa"]):
-                dict_hang_tons[hang_ton["id_hang_hoa"]].update({"so_luong":dict_hang_tons[hang_ton["id_hang_hoa"]]["so_luong"]+hang_ton['so_luong']})
-            else: 
+                dict_hang_tons[hang_ton["id_hang_hoa"]].update(
+                    {"so_luong": dict_hang_tons[hang_ton["id_hang_hoa"]]["so_luong"] + hang_ton['so_luong']})
+            else:
                 dict_hang_tons[hang_ton["id_hang_hoa"]] = copy.deepcopy(hang_ton)
                 dict_hang_tons[hang_ton["id_hang_hoa"]].update(self.get_hang_hoa_by_id(hang_ton)[0])
         return list(dict_hang_tons.values())

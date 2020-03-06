@@ -16,7 +16,6 @@ con = Connection("localhost", "root", "abc13579", "QuanLyCayTrongVatNuoi")
 ####### Phong ban
 @app.route("/phong-ban", methods=["GET"])
 def phongban():
-    print(request.method)
     return jsonify(con.phongban(action="GET"))
 
 
@@ -44,7 +43,6 @@ def phongbanDELETE():
 ### nhan viên
 @app.route("/nhan-vien", methods=["GET"])
 def nv():
-    print(request.method)
     return jsonify(con.nhanvien(action=request.method))
 
 
@@ -211,32 +209,47 @@ def DELETEkho():
     return jsonify(con.kho(action=request.method, data=r_dict))
 
 
-@app.route("/khu_vuc", methods=["GET"])
-def GETkhu_vuc():
-    content = request.data
-    r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.khu_vuc(action=request.method, data=r_dict))
+@app.route("/kho/<int:id_kho>/khu-vuc", methods=["GET"])
+def list_khu_vuc(id_kho):
+    try:
+        ds_khu_vuc = con.list_khu_vuc(id_kho)
+        return jsonify(ds_khu_vuc)
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
-@app.route("/khu_vuc", methods=["POST"])
-def POSTkhu_vuc():
-    content = request.data
-    r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.khu_vuc(action=request.method, data=r_dict))
+@app.route("/kho/<int:id_kho>/khu-vuc", methods=["POST"])
+def add_khu_vuc(id_kho):
+    try:
+        content = request.data
+        data = json.loads(content.decode('utf-8'))
+        return jsonify(con.add_khu_vuc(id_kho, data))
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
-@app.route("/khu_vuc", methods=["PUT"])
-def PUTkhu_vuc():
-    content = request.data
-    r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.khu_vuc(action=request.method, data=r_dict))
+@app.route("/kho/<int:id_kho>/khu-vuc", methods=["PUT"])
+def update_khu_vuc(id_kho):
+    try:
+        content = request.data
+        data = json.loads(content.decode('utf-8'))
+        return jsonify(con.update_khu_vuc(id_kho, data))
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
-@app.route("/khu_vuc", methods=["DELETE"])
-def DELETEkhu_vuc():
-    content = request.data
-    r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.khu_vuc(action=request.method, data=r_dict))
+@app.route("/kho/<int:id_kho>/khu-vuc", methods=["DELETE"])
+def delete_khu_vuc(id_kho):
+    try:
+        content = request.data
+        data = json.loads(content.decode('utf-8'))
+        return jsonify(con.delete_khu_vuc(id_kho, data))
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
 ###
