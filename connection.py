@@ -983,58 +983,39 @@ class Connection:
             self.con.rollback()
             raise e
 
-    def thongkedoanhthu(self, data=None):
-        chi_tiet_ban_hangs = self._get_chi_tiet_ban_hang()
-        datas = self.get_ban_hang()
-        dict_doanh_thu = dict()
-        for data in datas:
-            for chi_tiet_ban_hang in chi_tiet_ban_hangs:
-                if data["id_ban_hang"] == chi_tiet_ban_hang["id_ban_hang"]:
-                    dict_doanh_thu[data['ngay_ban']] = dict_doanh_thu[data['ngay_ban']] + chi_tiet_ban_hang[
-                        "gia"] if dict_doanh_thu.get(data['ngay_ban']) else chi_tiet_ban_hang["gia"]
-        # dict_doanh_thu = sorted(datas , key=lambda k: k['ngay_ban'])
+    def thong_ke_tong_doanh_thu(self, year):
+        sql = "SELECT month(ngay_ban) AS 'thang', SUM(so_luong * gia) AS 'doanh_thu' " \
+              "FROM ban_hang bh LEFT JOIN chi_tiet_ban_hang ctbh ON bh.id_ban_hang=ctbh.id_ban_hang " \
+              "WHERE year(ngay_ban)=%s " \
+              "GROUP BY month(ngay_ban);"
+        cursor = self.execute_get_cursor(sql, (year,))
+        rows = cursor.fetchall()
+        result = [0] * 12
+        for row in rows:
+            result[row['thang'] - 1] = row['doanh_thu']
+        return result
 
-        # list_thang_co_doanh_thu = [doanh_thu.month  for doanh_thu in list(dict_doanh_thu.keys())]
-        response = []
-        month = 0
-        for ngay_ban in sorted(dict_doanh_thu):
-            month += 1
-            print(ngay_ban.month)
-            while month < ngay_ban.month:
-                response.append(0)
-                month += 1
-            response.append(dict_doanh_thu.get(ngay_ban))
-        return response
+    def thong_ke_doanh_thu_theo_hang_hoa(self, year):
+        sql = "SELECT hh.id_hang_hoa, ten, SUM(ctbh.so_luong * ctbh.gia) as doanh_thu " \
+              "FROM ban_hang bh" \
+              "    LEFT JOIN chi_tiet_ban_hang ctbh ON bh.id_ban_hang=ctbh.id_ban_hang" \
+              "    LEFT JOIN hang_hoa hh ON ctbh.id_hang_hoa=hh.id_hang_hoa " \
+              "WHERE year(ngay_ban)=%s " \
+              "GROUP BY id_hang_hoa " \
+              "ORDER BY doanh_thu DESC;"
+        cursor = self.execute_get_cursor(sql, (year,))
+        return cursor.fetchall()
 
-    def thongkedoanhthu_hanghoa(self, data=None):
-        chi_tiet_ban_hangs = self._get_chi_tiet_ban_hang()
-        datas = self.get_ban_hang()
-        dict_doanh_thu = dict()
-        for data in datas:
-            for chi_tiet_ban_hang in chi_tiet_ban_hangs:
-                if data["id_ban_hang"] == chi_tiet_ban_hang["id_ban_hang"]:
-                    hang_hoa = self.get_hang_hoa_by_id(chi_tiet_ban_hang)[0]
-                    if dict_doanh_thu.get(chi_tiet_ban_hang['id_hang_hoa']):
-                        dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']]["doanh_thu"] += chi_tiet_ban_hang["gia"]
-                    else:
-                        dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']] = copy.deepcopy(hang_hoa)
-                        dict_doanh_thu[chi_tiet_ban_hang['id_hang_hoa']].update({"doanh_thu": chi_tiet_ban_hang["gia"]})
-        return list(dict_doanh_thu.values())
-
-    def thongkedoanhthu_nv(self, data=None):
-        chi_tiet_ban_hangs = self._get_chi_tiet_ban_hang()
-        datas = self.get_ban_hang()
-        dict_doanh_thu = dict()
-        for data in datas:
-            for chi_tiet_ban_hang in chi_tiet_ban_hangs:
-                if data["id_ban_hang"] == chi_tiet_ban_hang["id_ban_hang"]:
-                    nhan_vien = self.get_nv_by_id(data)[0]
-                    if dict_doanh_thu.get(nhan_vien['id_nhan_vien']):
-                        dict_doanh_thu[nhan_vien['id_nhan_vien']]["doanh_thu"] += chi_tiet_ban_hang["gia"]
-                    else:
-                        dict_doanh_thu[nhan_vien['id_nhan_vien']] = copy.deepcopy(nhan_vien)
-                        dict_doanh_thu[nhan_vien['id_nhan_vien']].update({"doanh_thu": chi_tiet_ban_hang["gia"]})
-        return list(dict_doanh_thu.values())
+    def thong_ke_doanh_thu_theo_nv(self, year):
+        sql = "SELECT nv.id_nhan_vien, ho,ten_dem,nv.ten, SUM(ctbh.so_luong * ctbh.gia) as doanh_thu " \
+              "FROM ban_hang bh" \
+              "    LEFT JOIN chi_tiet_ban_hang ctbh ON bh.id_ban_hang=ctbh.id_ban_hang" \
+              "    LEFT JOIN nhan_vien nv ON bh.id_nhan_vien=nv.id_nhan_vien " \
+              "WHERE year(ngay_ban)=%s " \
+              "GROUP BY id_nhan_vien " \
+              "ORDER BY doanh_thu DESC;"
+        cursor = self.execute_get_cursor(sql, (year,))
+        return cursor.fetchall()
 
     def thong_ke_hang_ton(self, data=None):
         sql = "SELECT h.id_hang_hoa, ten, don_vi_tinh, SUM(so_luong) AS 'so_luong_ton' " \

@@ -1,14 +1,31 @@
 """ Create by Ken at 2020 Feb 11 """
 # -*- coding: utf-8 -*-
+from datetime import date, datetime
 from flask import Flask, jsonify
 from flask import request
+from flask.json import JSONEncoder
 from flask_cors import CORS
 from connection import Connection
 import json
 import traceback
 
+
+class CustomJSONEncoder(JSONEncoder):
+    def default(self, obj):
+        try:
+            if isinstance(obj, date):
+                return obj.strftime("%Y-%m-%d %H:%M:%S")
+            iterable = iter(obj)
+        except TypeError:
+            pass
+        else:
+            return list(iterable)
+        return JSONEncoder.default(self, obj)
+
+
 app = Flask(__name__)
 CORS(app)
+app.json_encoder = CustomJSONEncoder
 
 con = Connection("localhost", "root", "abc13579", "QuanLyCayTrongVatNuoi")
 
@@ -332,24 +349,33 @@ def get_chi_tiet_ban_hang(id_ban_hang):
 
 
 @app.route("/thong-ke-tong-doanh-thu", methods=["GET"])
-def ban1_3hang0():
-    content = request.data
-    # r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.thongkedoanhthu())
+def thong_ke_tong_doanh_thu():
+    try:
+        year = int(request.args.get("nam"))
+        return jsonify(con.thong_ke_tong_doanh_thu(year))
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
 @app.route("/thong-ke-theo-hang-hoa", methods=["GET"])
-def ban1_h13ang0():
-    content = request.data
-    # r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.thongkedoanhthu_hanghoa())
+def thong_ke_doanh_thu_theo_hang_hoa():
+    try:
+        year = int(request.args.get("nam"))
+        return jsonify(con.thong_ke_doanh_thu_theo_hang_hoa(year))
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
 @app.route("/thong-ke-theo-nhan-vien", methods=["GET"])
-def ban151_hang0():
-    content = request.data
-    # r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.thongkedoanhthu_nv())
+def thong_ke_doanh_thu_theo_nv():
+    try:
+        year = int(request.args.get("nam"))
+        return jsonify(con.thong_ke_doanh_thu_theo_nv(year))
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
 @app.route("/thong-ke-hang-ton", methods=["GET"])
