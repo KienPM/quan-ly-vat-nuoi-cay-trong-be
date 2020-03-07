@@ -275,38 +275,60 @@ def PUThang_hoa():
 
 
 @app.route("/hang-hoa", methods=["DELETE"])
-def DELETEkhang_hoa():
+def delete_hang_hoa():
     content = request.data
     r_dict = json.loads(content.decode('utf-8'))
     return jsonify(con.hang_hoa(action=request.method, data=r_dict))
 
 
-@app.route("/hang-hoa", methods=["DELETE"])
-def DELETEkhan1g_hoa():
-    content = request.data
-    r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.hang_hoa(action=request.method, data=r_dict))
+@app.route("/hang-hoa-trong-kho/<int:id_kho>", methods=["GET"])
+def hhtk(id_kho):
+    try:
+        return jsonify(con.list_hang_hoa_trong_kho(id_kho))
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
-@app.route("/hang-hoa-trong-kho", methods=["GET"])
-def hhtk():
-    content = request.data
-    r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.hang_hoa_kho(action=request.method, data=r_dict))
+@app.route("/ban-hang", methods=["GET"])
+def list_ban_hang():
+    try:
+        return jsonify(con.list_ban_hang())
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
-@app.route("/ban-hang", methods=["POST", "PUT", "DELETE", "GET"])
-def ban_hang0():
-    content = request.data
-    r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.ban_hang(action=request.method, data=r_dict))
+@app.route("/ban-hang", methods=["POST"])
+def add_ban_hang():
+    try:
+        content = request.data
+        data = json.loads(content.decode('utf-8'))
+        return jsonify(con.add_ban_hang(data))
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
-@app.route("/chi-tiet-ban-hang", methods=["GET"])
-def ban1_hang0():
-    content = request.data
-    # r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.chi_tiet_ban_hang(action=request.method, data=None))
+@app.route("/ban-hang/<int:id_ban_hang>", methods=["DELETE"])
+def delete_ban_hang(id_ban_hang):
+    try:
+        return jsonify(con.delete_ban_hang(id_ban_hang))
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
+
+
+# @app.route("/ban-hang", methods=["POST", "PUT", "DELETE"])
+# def ban_hang0():
+#     content = request.data
+#     r_dict = json.loads(content.decode('utf-8'))
+#     return jsonify(con.ban_hang(action=request.method, data=r_dict))
+
+
+@app.route("/chi-tiet-ban-hang/<int:id_ban_hang>", methods=["GET"])
+def get_chi_tiet_ban_hang(id_ban_hang):
+    return jsonify(con.chi_tiet_ban_hang(id_ban_hang))
 
 
 @app.route("/thong-ke-tong-doanh-thu", methods=["GET"])
