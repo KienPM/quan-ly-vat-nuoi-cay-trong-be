@@ -353,10 +353,12 @@ def ban151_hang0():
 
 
 @app.route("/thong-ke-hang-ton", methods=["GET"])
-def ban1_h31232ang0():
-    content = request.data
-    # r_dict = json.loads(content.decode('utf-8'))
-    return jsonify(con.thongkehangton())
+def thong_ke_hang_ton():
+    try:
+        return jsonify(con.thong_ke_hang_ton())
+    except:
+        print(traceback.format_exc())
+        return 'Internal server error', 500
 
 
 if __name__ == '__main__':

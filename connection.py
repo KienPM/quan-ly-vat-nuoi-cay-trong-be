@@ -1036,17 +1036,12 @@ class Connection:
                         dict_doanh_thu[nhan_vien['id_nhan_vien']].update({"doanh_thu": chi_tiet_ban_hang["gia"]})
         return list(dict_doanh_thu.values())
 
-    def thongkehangton(self, data=None):
-        hang_tons = self.get_ids_hang_ton()
-        dict_hang_tons = dict()
-        for hang_ton in hang_tons:
-            if dict_hang_tons.get(hang_ton["id_hang_hoa"]):
-                dict_hang_tons[hang_ton["id_hang_hoa"]].update(
-                    {"so_luong": dict_hang_tons[hang_ton["id_hang_hoa"]]["so_luong"] + hang_ton['so_luong']})
-            else:
-                dict_hang_tons[hang_ton["id_hang_hoa"]] = copy.deepcopy(hang_ton)
-                dict_hang_tons[hang_ton["id_hang_hoa"]].update(self.get_hang_hoa_by_id(hang_ton)[0])
-        return list(dict_hang_tons.values())
+    def thong_ke_hang_ton(self, data=None):
+        sql = "SELECT h.id_hang_hoa, ten, don_vi_tinh, SUM(so_luong) AS 'so_luong_ton' " \
+              "FROM luu_kho l LEFT JOIN hang_hoa h on l.id_hang_hoa=h.id_hang_hoa " \
+              "GROUP BY h.id_hang_hoa;"
+        cursor = self.execute_get_cursor(sql)
+        return cursor.fetchall()
 
     def excute_sql(self, sql, value=None):
         cur = self.con.cursor()
